@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WaitlistStatus {
+  WAITING
+  REMOVED
+}
+
+model WaitlistEntry {
+  id           String         @id @default(uuid())
+  // Backed by a PostgreSQL sequence (SERIAL). Sequences never hand out the same
+  // value twice, even across concurrent transactions or after rows are removed.
+  ticketNumber Int            @unique @default(autoincrement())
+  customerName String
+  partySize    Int
+  status       WaitlistStatus @default(WAITING)
+  joinedAt     DateTime       @default(now())
+  removedAt    DateTime?
+
+  @@index([status, ticketNumber])
+  @@map("waitlist_entries")
+}
